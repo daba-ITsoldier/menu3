@@ -95,7 +95,7 @@ function createMenu(array) {
     image.src = array.img;
     // メニュー名
     const text = document.createElement("span");
-    text.classList.add("text", "rampart-one-regular");
+    text.classList.add("text", "shippori-antique-regular");
     text.textContent = `${array.name}`;
     // メニュー値段
     const priceBox = document.createElement("div");
@@ -213,40 +213,26 @@ const no1 = document.getElementById("no1");
 const no2 = document.getElementById("no2");
 const no3 = document.getElementById("no3");
 const no4 = document.getElementById("no4");
+const no5 = document.getElementById("no5");
 
-no1.addEventListener("click", () => {
-    const texts = document.querySelectorAll(".menu .text");
-    texts.forEach(text => {
-        text.classList.remove(
-            "rampart-one-regular", 
-            "dotgothic16-regular", 
-            "shippori-antique-regular",
-        );
-        text.classList.add("rampart-one-regular");
+const BGs = [
+    "img/BGwood.jpg",
+    "img/BGwood2.jpg",
+    "img/BGwood3.jpg",
+    "img/BGwood4.jpg",
+    "img/BGwood5.jpg",
+];
+
+changeBGbtn(no1, 1);
+changeBGbtn(no2, 2);
+changeBGbtn(no3, 3);
+changeBGbtn(no4, 4);
+changeBGbtn(no5, 5);
+
+function changeBGbtn(array, num) {
+    const imgBG = document.querySelector(".BG > img");
+    const numbers = num - 1
+    array.addEventListener("click", () => {
+        imgBG.src = BGs[numbers];
     });
-});
-
-no2.addEventListener("click", () => {
-    const texts = document.querySelectorAll(".menu .text");
-    texts.forEach(text => {
-        text.classList.remove(
-            "rampart-one-regular", 
-            "dotgothic16-regular", 
-            "shippori-antique-regular",
-        );
-        text.classList.add("dotgothic16-regular");
-    });
-});
-
-no3.addEventListener("click", () => {
-    const texts = document.querySelectorAll(".menu .text");
-    texts.forEach(text => {
-        text.classList.remove(
-            "rampart-one-regular", 
-            "dotgothic16-regular", 
-            "shippori-antique-regular",
-        );
-        text.classList.add("shippori-antique-regular");
-    });
-});
-
+}

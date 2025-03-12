@@ -12,19 +12,6 @@ body {
     user-select: none;
 }
 
-.rampart-one-regular {
-    font-family: "Rampart One", sans-serif;
-    font-style: normal;
-    text-shadow: 6px 8px 6px rgb(124, 124, 124);
-}
-
-.dotgothic16-regular {
-    font-family: "DotGothic16", sans-serif;
-    font-weight: 900;
-    font-style: normal;
-    text-shadow: 3px 3px 3px rgba(117, 117, 117, 0.836);
-}
-
 .shippori-antique-regular {
     font-family: "Shippori Antique", sans-serif;
     font-weight: 400;
