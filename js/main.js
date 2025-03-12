@@ -206,3 +206,63 @@ function animateToPosition(startX, startY, endX, endY, controlX, controlY, targe
 // const myDiv = document.getElementById('myDiv');
 // cartInAnimation(myDiv, 150, 600);
   
+
+
+// 下のジャンルボタン
+const no1 = document.getElementById("no1");
+const no2 = document.getElementById("no2");
+const no3 = document.getElementById("no3");
+const no4 = document.getElementById("no4");
+
+no1.addEventListener("click", () => {
+    const texts = document.querySelectorAll(".menu .text");
+    texts.forEach(text => {
+        text.classList.remove(
+            "rampart-one-regular", 
+            "dela-gothic-one-regular", 
+            "mochiy-pop-one-regular", 
+            "mochiy-pop-p-one-regular"
+        );
+        text.classList.add("rampart-one-regular");
+    });
+});
+
+no2.addEventListener("click", () => {
+    const texts = document.querySelectorAll(".menu .text");
+    texts.forEach(text => {
+        text.classList.remove(
+            "rampart-one-regular", 
+            "dela-gothic-one-regular", 
+            "mochiy-pop-one-regular", 
+            "mochiy-pop-p-one-regular"
+        );
+        text.classList.add("dela-gothic-one-regular");
+    });
+});
+
+no3.addEventListener("click", () => {
+    const texts = document.querySelectorAll(".menu .text");
+    texts.forEach(text => {
+        text.classList.remove(
+            "rampart-one-regular", 
+            "dela-gothic-one-regular", 
+            "mochiy-pop-one-regular", 
+            "mochiy-pop-p-one-regular"
+        );
+        text.classList.add("mochiy-pop-one-regular");
+    });
+});
+
+no4.addEventListener("click", () => {
+    const texts = document.querySelectorAll(".menu .text");
+    texts.forEach(text => {
+        text.classList.remove(
+            "rampart-one-regular", 
+            "dela-gothic-one-regular", 
+            "mochiy-pop-one-regular", 
+            "mochiy-pop-p-one-regular"
+        );
+        text.classList.add("mochiy-pop-p-one-regular");
+    });
+});
+
