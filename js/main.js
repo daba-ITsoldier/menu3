@@ -219,9 +219,8 @@ no1.addEventListener("click", () => {
     texts.forEach(text => {
         text.classList.remove(
             "rampart-one-regular", 
-            "dela-gothic-one-regular", 
-            "mochiy-pop-one-regular", 
-            "mochiy-pop-p-one-regular"
+            "dotgothic16-regular", 
+            "shippori-antique-regular",
         );
         text.classList.add("rampart-one-regular");
     });
@@ -232,11 +231,10 @@ no2.addEventListener("click", () => {
     texts.forEach(text => {
         text.classList.remove(
             "rampart-one-regular", 
-            "dela-gothic-one-regular", 
-            "mochiy-pop-one-regular", 
-            "mochiy-pop-p-one-regular"
+            "dotgothic16-regular", 
+            "shippori-antique-regular",
         );
-        text.classList.add("dela-gothic-one-regular");
+        text.classList.add("dotgothic16-regular");
     });
 });
 
@@ -245,24 +243,10 @@ no3.addEventListener("click", () => {
     texts.forEach(text => {
         text.classList.remove(
             "rampart-one-regular", 
-            "dela-gothic-one-regular", 
-            "mochiy-pop-one-regular", 
-            "mochiy-pop-p-one-regular"
+            "dotgothic16-regular", 
+            "shippori-antique-regular",
         );
-        text.classList.add("mochiy-pop-one-regular");
-    });
-});
-
-no4.addEventListener("click", () => {
-    const texts = document.querySelectorAll(".menu .text");
-    texts.forEach(text => {
-        text.classList.remove(
-            "rampart-one-regular", 
-            "dela-gothic-one-regular", 
-            "mochiy-pop-one-regular", 
-            "mochiy-pop-p-one-regular"
-        );
-        text.classList.add("mochiy-pop-p-one-regular");
+        text.classList.add("shippori-antique-regular");
     });
 });
 
