@@ -29,7 +29,7 @@ body {
     font-family: "Shippori Antique", sans-serif;
     font-weight: 400;
     font-style: normal;
-    text-shadow: 3px 3px 4px rgba(131, 131, 131, 0.842);
+    text-shadow: 3px 3px 4px rgba(131, 131, 131, 0.85);
 }
     
 .font {
@@ -58,7 +58,7 @@ body {
     position: absolute;
     top: calc(50% - 45dvh);
     left: calc(50% - 45dvw);
-    background-color: rgba(128, 128, 128, 0.486);
+    background-color: rgba(128, 128, 128, 0.5);
     border-radius: 12px;
     z-index: -20;
 }
@@ -72,7 +72,7 @@ body {
     height: 15dvh;
     padding: 0;
     margin: 0;
-    background-color: rgba(133, 133, 133, 0.445);
+    background-color: rgba(133, 133, 133, 0.45);
     display: flex;
     flex-direction: column;
 }
@@ -278,7 +278,7 @@ body {
     height: 15dvh;
     padding: 0;
     margin: 0;
-    background-color: rgb(136, 255, 136);
+    background-color: rgba(133, 133, 133, 0.3);
     overflow-x: scroll;
     overflow-y: hidden;
 }
