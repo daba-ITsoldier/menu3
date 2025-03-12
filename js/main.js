@@ -104,7 +104,7 @@ function createMenu(array) {
     price.classList.add("price", "font");
     price.textContent = `${array.price}`;
     const en = document.createElement("span");
-    en.classList.add("en", "rampart-one-regular");
+    en.classList.add("en", "font");
     en.textContent = "円";
 
     wrapper.appendChild(image);
