@@ -14,6 +14,20 @@ const menus = [
 ];
 
 
+
+// カートの位置　定数    ********************************************
+const cartButton = document.querySelector(".cart-btn");
+const cartCoordinate = cartButton.getBoundingClientRect();
+const cartIn = document.querySelector(".cart-in-animation");
+let isAnimating = false;
+
+// カートインアニメーション用
+const cartInImg = document.querySelector(".cart-in-animation > img");
+
+// カートの位置補正用
+const mainCoodinate = document.querySelector(".main").getBoundingClientRect();
+
+
 // メニュー作成　定数    ********************************************
 const menuUl = document.querySelector(".menu > ul");
 const menuDisplay = document.querySelector(".menu");
@@ -85,19 +99,21 @@ function leftGoButton(array) {
 
 // メニュー作成関数
 function createMenu(array) {
-    // メニュー全体
+    // メニュー全体  li
     const li = document.createElement("li");
     const wrapper = document.createElement("div");
     wrapper.classList.add("wrapper");
-    // メニュー画像
+    // メニュー画像  img
     const image = document.createElement("img");
     image.classList.add("image");
     image.src = array.img;
-    // メニュー名
+    // メニュー名   span     (ここをクリックしてカートに追加＋カートアニメーション)
     const text = document.createElement("span");
     text.classList.add("text", "shippori-antique-regular");
     text.textContent = `${array.name}`;
-    // メニュー値段
+    // text.style.userSelect = "none";
+
+    // メニュー値段  span
     const priceBox = document.createElement("div");
     priceBox.classList.add("price-box");
     const price = document.createElement("span");
@@ -106,6 +122,18 @@ function createMenu(array) {
     const en = document.createElement("span");
     en.classList.add("en", "font");
     en.textContent = "円";
+    // カートインアニメーション
+    text.addEventListener("click", () => {
+        const rect = text.getBoundingClientRect();
+        const centerX = Math.round(rect.left + window.pageXOffset) - 25;
+        const centerY = Math.round(rect.top + window.pageYOffset) + 75;
+        const cartRect = cartButton.getBoundingClientRect();
+        const endX = Math.round(cartRect.left + window.pageXOffset);
+        const endY = Math.round(cartRect.top + window.pageYOffset) + 16;
+
+        cartInAnimation(cartIn, centerX, centerY, cartButton, endX, endY);
+    });
+    
 
     wrapper.appendChild(image);
     wrapper.appendChild(text);
@@ -139,100 +167,188 @@ function adjustFontSize(element, maxChars, minFontSize, maxFontSize) {
 }
 
 
-// カートの位置　定数    ********************************************
-const cartButton = document.querySelector(".cart-btn");
-const cartCoordinate = cartButton.getBoundingClientRect();
-
-
 // カートインアニメーション
-function cartInAnimation(targetElement, startX, startY) {
-    const dvw = window.innerWidth * 0.2;
-    const dvh = window.innerHeight * 0.2;
-    const wayX = startX + dvw;
-    const wayY = startY + dvh;
-    const controlFirstX = (startX + dvw) / 2;
-    const controlFirstY = startY - dvh;
-    const endX = 500;
-    const endY = 500;
-    const duration = 800;
-    animateToPosition(startX, startY, wayX, wayY, controlFirstX, controlFirstY, targetElement, duration);
-    const controlSecondX = (wayX + dvw) / 2;
-    const controlSecondY = wayY - dvh;
-    animateToPosition(wayX, wayY, endX, endY, controlSecondX, controlSecondY, targetElement, duration);
+async function cartInAnimation(startElement, x, y, endElement, eX, eY) {
+    const backX = x - 40; // X方向の逆方向移動位置
+
+    startElement.style.zIndex = 15;
+    startElement.classList.add("fade-in");
+    // 2つ目の動き: 目的の高さまで移動
+    await moveElement(startElement, x, y, x, eY, 400);
+    startElement.style.width = "40px";
+    startElement.style.height = "40px";
+    cartInImg.style.width = "40px";
+    cartInImg.style.height = "40px";
+
+    // 3つ目の動き: 逆方向（右へ少し移動）
+    await moveElement(startElement, x, eY, backX, eY, 150);
+
+    startElement.classList.remove("fade-in");
+    startElement.classList.add("fade-out");
+    // 4つ目の動き: 目的のX座標まで移動
+    await moveElement(startElement, backX, eY, eX, eY, 300);
+    await waitAction(startElement, -10, 150, 300);
+    cartInImg.style.width = "150px";
+    cartInImg.style.height = "300px";
+
+    startElement.classList.remove("fade-out");
+
+    // カートを揺らす
+    await shakeAnimation(endElement, 1000);
+}
+
+function waitAction(element, zIndex, width, height) {
+    element.style.zIndex = zIndex;
+    element.style.width = `${width}px`;
+    element.style.height = `${height}px`;
+}
+
+function moveElement(element, startX, startY, endX, endY, duration = 1000) {
+    return new Promise((resolve) => {
+        let startTime = null;
+
+        function easeInOutQuad(t) {
+            return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        }
+
+        function animate(currentTime) {
+            if (!startTime) startTime = currentTime;
+            let elapsed = currentTime - startTime;
+            let progress = Math.min(elapsed / duration, 1);
+
+            let easedProgress = easeInOutQuad(progress);
+            let newX = startX + (endX - startX) * easedProgress;
+            let newY = startY + (endY - startY) * easedProgress;
+
+            element.style.transform = `translate(${newX}px, ${newY}px)`;
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                resolve(); // アニメーション終了後に次の処理へ
+            }
+        }
+
+        requestAnimationFrame(animate);
+    });
 }
 
 
-// ベジェ曲線を使ってアニメーションを行う関数
-function animateToPosition(startX, startY, endX, endY, controlX, controlY, targetElement, duration) {
-    const startTime = Date.now();
-  
-    // アニメーションの更新関数
-    function animate() {
-      const currentTime = Date.now();
-      const elapsed = currentTime - startTime;
-  
-      // アニメーションが終了したら停止
-      if (elapsed >= duration) {
-        targetElement.style.left = `${endX}px`;
-        targetElement.style.top = `${endY}px`;
-        return;
-      }
-  
-      // 進行度t（0〜1）
-      const t = elapsed / duration;
-  
-      // ベジェ曲線で座標を補間
-      const x = (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * controlX + t * t * endX;
-      const y = (1 - t) * (1 - t) * startY + 2 * (1 - t) * t * controlY + t * t * endY;
-  
-      // アニメーション対象の位置を更新
-      targetElement.style.left = `${x}px`;
-      targetElement.style.top = `${y}px`;
-  
-      // 次のフレームで再帰的に呼び出し
-      requestAnimationFrame(animate);
+// カートが揺れるアニメーション
+function shakeAnimation(element, duration) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    let startTime = null;
+    let currentMax = 30; // 開始値を30に固定
+    let direction = 1;
+
+    function easeOutQuad(t) {
+        return 1 - (1 - t) * (1 - t);
     }
-  
-    // 初期位置を設定
-    targetElement.style.left = `${startX}px`;
-    targetElement.style.top = `${startY}px`;
-  
-    // アニメーション開始
-    animate();
+
+    function animate(currentTime) {
+        if (!startTime) startTime = currentTime;
+        let elapsed = currentTime - startTime;
+        let progress = Math.min(elapsed / duration, 1); // 0 ～ 1 の間
+
+        let easedProgress = easeOutQuad(progress);
+        let angle = currentMax * (1 - easedProgress) * direction;
+        element.style.transform = `rotate(${angle}deg)`;
+
+        // 100msごとにプラスマイナスを切り替え
+        direction = Math.round(elapsed / 100) % 2 === 0 ? 1 : -1;
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            element.style.transform = `rotate(0deg)`;
+            isAnimating = false;
+        }
+    }
+
+    requestAnimationFrame(animate);
+}
+
+// .main は position:relative なので、それの座標を調べるための関数
+function getAbsolutePosition(element) {
+    let x = 0, y = 0;
+    while (element) {
+        x += element.offsetLeft;
+        y += element.offsetTop;
+        element = element.offsetParent;
+    }
+    return { x, y };
 }
 
 
-// // 使用例: #myDivを (100, 100) から (500, 300) へ、(300, 150) を経由して移動
-// const myDiv = document.getElementById('myDiv');
-// cartInAnimation(myDiv, 150, 600);
+// *****************************************************
+
   
 
 
 // 下のジャンルボタン
-const no1 = document.getElementById("no1");
-const no2 = document.getElementById("no2");
-const no3 = document.getElementById("no3");
-const no4 = document.getElementById("no4");
-const no5 = document.getElementById("no5");
+const BG = document.querySelector(".BG");
+const no9 = document.getElementById("no9");
+const no10 = document.getElementById("no10");
+const no11 = document.getElementById("no11");
 
-const BGs = [
-    "img/BGwood.jpg",
-    "img/BGwood2.jpg",
-    "img/BGwood3.jpg",
-    "img/BGwood4.jpg",
-    "img/BGwood5.jpg",
+const buttons = [
+    { id: "no1", top: 0, left: -10 },
+    // { id: "no2", top: -10, left: 0 },
+    // { id: "no3", top: 10, left: 0 },
+    { id: "no4", top: 0, left: 10 },
+    { id: "no5", top: 0, left: -1 },
+    // { id: "no6", top: -1, left: 0 },
+    // { id: "no7", top: 1, left: 0 },
+    { id: "no8", top: 0, left: 1 }
 ];
 
-changeBGbtn(no1, 1);
-changeBGbtn(no2, 2);
-changeBGbtn(no3, 3);
-changeBGbtn(no4, 4);
-changeBGbtn(no5, 5);
+let topValue = 50; // 初期位置を50%に設定
+let leftValue = 50;
+let scale = 320;
 
-function changeBGbtn(array, num) {
-    const imgBG = document.querySelector(".BG > img");
-    const numbers = num - 1
-    array.addEventListener("click", () => {
-        imgBG.src = BGs[numbers];
-    });
+
+no10.addEventListener("click", () => {
+    scale += 10;
+    if(scale > 500) { scale = 500; }
+    updateBackgroundSize();
+});
+
+no11.addEventListener("click", () => {
+    scale -= 10;
+    if(scale < 330) { scale = 330; }
+    updateBackgroundSize();
+});
+
+function updateBackgroundSize() {
+    BG.style.backgroundSize = `${scale}%`;
+    console.log(`scale: ${scale}`);
 }
+
+// 各ボタンにイベントリスナーを追加
+buttons.forEach(({ id, top, left }) => {
+    const element = document.getElementById(id);
+    if (element) { // 要素が存在する場合のみ処理
+        element.addEventListener("click", () => {
+            topValue += top;
+            leftValue += left;
+            
+            // 背景の範囲を超えないように制限
+            topValue = Math.max(0, Math.min(100, topValue));
+            leftValue = Math.max(0, Math.min(100, leftValue));
+
+            BG.style.backgroundPosition = `${leftValue}% ${topValue}%`;
+            console.log(`Moved to: ${leftValue}% ${topValue}%`);
+        });
+    } else {
+        console.error(`Element with ID '${id}' not found.`);
+    }
+});
+
+
+no9.addEventListener("click", () => {
+    topValue = 50;
+    leftValue = 50;
+    BG.style.backgroundPosition = `${leftValue}% ${topValue}%`;
+});
