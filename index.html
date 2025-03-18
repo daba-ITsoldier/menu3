@@ -12,23 +12,36 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <!-- top, sub, background -->
     <section class="BG"></section>
     <section class="top"></section>
+    <section class="in-cart">
+        <div class="inCart-topArea">
+            <div class="hide-btn">▲</div>
+            <div class="inCart-display inCart-en">0</div>
+            <div class="inCart-display inCart-ko">0</div>
+            <div class="inCart-btn"><img src="img/cart.png" alt="" width="36" height="36"></div>
+        </div>
+        <div class="in-cart-container">
+            <ul><div id="output"></div></ul>
+        </div>
+    </section>
+    <div class="overlay-area"></div>
 
     <!-- header -->
     <section class="header">
         <div class="header-container">
             <div class="cart-price-wrapper">
-                <span class="cart-display">合計金額</span>
+                <span class="cart-display">合計</span>
                 <div class="cart-price cart-display">
-                    <span>11000</span>
+                    <span></span>
                 </div>
-                <span class="cart-display">円</span>
-                <span class="cart-display">　合計数</span>
+                <span class="cart-display en-display">円</span>
+                <span class="cart-display">合計</span>
                 <div class="cart-total cart-display">
-                    <span>2</span>
+                    <span>0</span>
                 </div>
-                <span class="cart-display">個</span>
+                <span class="cart-display ko-display">個</span>
             </div>
             <div class="cart-btn"><img src="img/cart.png" alt="" width="48" height="48"></div>
         </div>
@@ -41,7 +54,7 @@
         <div class="menu">
             <ul>
             </ul>
-            <div class="cart-in-animation"><img src="img/raimon_resize.png" alt=""></div>
+            <div class="cart-in-animation"><img src="img/raimon.png" alt=""></div>
         </div>
     </section>
 

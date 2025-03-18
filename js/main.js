@@ -1,18 +1,19 @@
 "use strict";
 
 const menus = [
-    {no:  1, name: "チャーハン", price: 900, img: "img/raimon_resize.png"},
-    {no:  2, name: "唐揚げ", price: 900, img: "img/raimon_resize.png"},
-    {no:  3, name: "餃子", price: 900, img: "img/raimon_resize.png"},
-    {no:  4, name: "焼売", price: 900, img: "img/raimon_resize.png"},
-    {no:  5, name: "棒棒鶏", price: 900, img: "img/raimon_resize.png"},
-    {no:  6, name: "チャーハンチャーハン チャーハン", price: 900, img: "img/raimon_resize.png"},
-    {no:  7, name: "チャーハン　　　　　半チャーハン　　　　　全チャーハン　　　　　サイコチャーハン", price: 900, img: "img/raimon_resize.png"},
-    {no:  8, name: "寿限無寿限無五劫のすりきれ海砂利水魚の水行末雲来末風来末食う寝るところに住むところやぶらこうじのぶらこうじパイポパイポパイポのシューリンガンシューリンガンのグーリンダイグーリンダイのポンポコピーのポンポコナの長久命ちょうきゅうめいの長助", price: 900, img: "img/raimon_resize.png"},
-    {no:  9, name: "チャーハン", price: 900, img: "img/raimon_resize.png"},
-    {no: 10, name: "チャーハン", price: 900, img: "img/raimon_resize.png"},
+    {no:  1, name: "チャーハン", price: 900, img: "img/raimon.png"},
+    {no:  2, name: "唐揚げ", price: 800, img: "img/raimon_resize.png"},
+    {no:  3, name: "餃子", price: 700, img: "img/raimon.png"},
+    {no:  4, name: "焼売", price: 10, img: "img/raimon.png"},
+    {no:  5, name: "棒棒鶏", price: 1000, img: "img/raimon.png"},
+    {no:  6, name: "チャーハンチャーハン チャーハン", price: 1900, img: "img/raimon.png"},
+    {no:  7, name: "チャーハン　　　　　半チャーハン　　　　　全チャーハン　　　　　サイコチャーハン", price: 900, img: "img/raimon.png"},
+    {no:  8, name: "寿限無寿限無五劫のすりきれ海砂利水魚の水行末雲来末風来末食う寝るところに住むところやぶらこうじのぶらこうじパイポパイポパイポのシューリンガンシューリンガンのグーリンダイグーリンダイのポンポコピーのポンポコナの長久命ちょうきゅうめいの長助", price: 60000, img: "img/raimon.png"},
+    {no:  9, name: "チャーハン", price: 600, img: "img/raimon.png"},
+    {no: 10, name: "チャーハン", price: 500, img: "img/raimon.png"},
 ];
 
+const menuStocks = [];
 
 
 // カートの位置　定数    ********************************************
@@ -32,6 +33,8 @@ const mainCoodinate = document.querySelector(".main").getBoundingClientRect();
 const menuUl = document.querySelector(".menu > ul");
 const menuDisplay = document.querySelector(".menu");
 
+const outputDiv = document.getElementById("output");
+let activeTooltip = null;
 
 // 実際にメニュー作成
 menus.forEach(menu => {
@@ -97,7 +100,7 @@ function leftGoButton(array) {
 }
 
 
-// メニュー作成関数
+// メニュー作成関数  **************************************************************************
 function createMenu(array) {
     // メニュー全体  li
     const li = document.createElement("li");
@@ -124,6 +127,7 @@ function createMenu(array) {
     en.textContent = "円";
     // カートインアニメーション
     text.addEventListener("click", () => {
+        // カートインアニメーション
         const rect = text.getBoundingClientRect();
         const centerX = Math.round(rect.left + window.pageXOffset) - 25;
         const centerY = Math.round(rect.top + window.pageYOffset) + 75;
@@ -132,6 +136,17 @@ function createMenu(array) {
         const endY = Math.round(cartRect.top + window.pageYOffset) + 16;
 
         cartInAnimation(cartIn, centerX, centerY, cartButton, endX, endY);
+
+        // カートに飛ばす情報
+        // menuStocks.push(array);
+        // console.log(menuStocks);
+
+        // カート内のトータル表示
+        addListItem(array);
+        cartPriceDisplay();
+        cartTotalDisplay();
+        inCartPriceDisplay();
+        inCartTotalDisplay();
     });
     
 
@@ -167,7 +182,7 @@ function adjustFontSize(element, maxChars, minFontSize, maxFontSize) {
 }
 
 
-// カートインアニメーション
+// カートインアニメーション   ******************************************************************
 async function cartInAnimation(startElement, x, y, endElement, eX, eY) {
     const backX = x - 40; // X方向の逆方向移動位置
 
@@ -282,7 +297,7 @@ function getAbsolutePosition(element) {
 }
 
 
-// *****************************************************
+// *************************************************************************************
 
   
 
@@ -352,3 +367,175 @@ no9.addEventListener("click", () => {
     leftValue = 50;
     BG.style.backgroundPosition = `${leftValue}% ${topValue}%`;
 });
+
+
+
+// cart-price トータル金額　　cart-total トータル個数
+const cartPrice = document.querySelector(".cart-price > span");
+const cartTotal = document.querySelector(".cart-total > span");
+const inCartEn = document.querySelector(".inCart-topArea > .inCart-en");
+const inCartKo = document.querySelector(".inCart-topArea > .inCart-ko");
+
+cartPriceDisplay();
+cartTotalDisplay();
+inCartPriceDisplay();
+inCartTotalDisplay();
+
+function cartPriceDisplay() {
+    const total = menuStocks.reduce((sum, menu) => sum + menu.price, 0);
+    cartPrice.textContent = total;
+}
+
+function inCartPriceDisplay() {
+    const total = menuStocks.reduce((sum, menu) => sum + menu.price, 0);
+    inCartEn.textContent = total;
+}
+
+function cartTotalDisplay() {
+    const total = menuStocks.length;
+    cartTotal.textContent = total;
+}
+
+function inCartTotalDisplay() {
+    const total = menuStocks.length;
+    inCartKo.textContent = total;
+}
+
+// menuStocks のソート用。カートに入れたメニューのソート
+function sortCart() {
+    menuStocks.sort((a, b) => a.no - b.no);
+}
+
+// in-cart内に入れたメニューの表示
+function addListItem(element) {
+    element.id = Date.now();
+    menuStocks.push(element);
+    sortCart();
+    renderList();
+}
+
+
+function renderList() {
+    const ul = document.querySelector(".in-cart-container > ul");
+    ul.replaceChildren();
+
+    const summarizedMenus = groupItems(menuStocks);
+
+    console.log(summarizedMenus);
+
+    summarizedMenus.forEach(menu => {
+        const li = document.createElement("li");
+        
+        const span = document.createElement("span");
+        span.classList.add("cart-span","shippori-antique-regular");
+        // span.textContent = menu.name;
+        span.textContent = truncateText(menu.name);
+
+        if(menu.name.length > 10) {
+            const tooltip = document.createElement("div");
+            tooltip.classList.add("tooltip");
+            tooltip.textContent = menu.name;
+            span.appendChild(tooltip);
+
+            span.addEventListener("click", () => {
+                if(activeTooltip && activeTooltip !== tooltip) {
+                    activeTooltip.style.display = "none";
+                }
+                tooltip.style.display = tooltip.style.display === "block" ? "none" : "block";
+                activeTooltip = tooltip.style.display === "block" ? tooltip : null;
+            });
+        }
+
+        outputDiv.appendChild(span);
+        //
+        
+        const cartNum = document.createElement("span");
+        cartNum.classList.add("cart-num","shippori-antique-regular");
+        cartNum.textContent = menu.count;
+
+        const deleteBtn = document.createElement("div");
+        deleteBtn.textContent = "削除";
+        deleteBtn.classList.add("delete-btn", "shippori-antique-regular");
+        deleteBtn.addEventListener("click", () => {
+            deleteItem(menu.id);
+        });
+
+        li.appendChild(span);
+        // li.appendChild(outputDiv);
+        li.appendChild(cartNum);
+        li.appendChild(deleteBtn);
+        ul.appendChild(li);
+    });
+}
+
+function groupItems(element) {
+    const grouped = {};
+
+    element.forEach(item => {
+        if(grouped[item.id]) {
+            grouped[item.id].count++;
+        } else {
+            grouped[item.id] = { ...item, count:1};
+        }
+    });
+
+    return Object.values(grouped);
+}
+
+function deleteItem(id) {
+    const index = menuStocks.findIndex(menu => menu.id === id);
+    if(index !== -1) {
+        menuStocks.splice(index, 1);
+    }
+    renderList();
+    cartPriceDisplay();
+    cartTotalDisplay();
+    inCartPriceDisplay();
+    inCartTotalDisplay();
+    console.log(menuStocks);
+}
+
+function truncateText(text) {
+    if (text.length > 10) {
+        return text.slice(0, 4) + "…" + text.slice(-4);
+    }
+    return text;
+}
+
+
+// cart-btn の挙動
+const cartBtn = document.querySelector(".cart-btn");
+const inCart = document.querySelector(".in-cart");
+const overlayArea = document.querySelector(".overlay-area");
+const hideBtn = document.querySelector(".hide-btn");
+
+cartBtn.addEventListener("click", () => {
+    inCart.classList.add("appear");
+    overlayArea.classList.add("appear");
+});
+
+hideBtn.addEventListener("click", () => {
+    inCart.classList.remove("appear");
+    overlayArea.classList.remove("appear");
+});
+
+
+// 進捗
+// 残り
+// 　　　画像の中華風のやつ（雷紋）を小さくしてもう少しふちに寄せるようにする
+
+// 　　　下のボタンを後で変更しやすく整えておく
+
+// 　　　phpなどで送信できるように簡単なサンプルで試す
+
+// 　　　キッチン側のページを作る
+
+// 　　　管理ページも作る
+
+// 　　　とりあえず予約なし版の仮版を完成させる
+
+// 　　　当日予約ができるように作る
+
+// 　　　カレンダーを作る
+
+// 　　　カレンダーで数日先の予約ができるようにする
