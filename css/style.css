@@ -299,6 +299,10 @@ body {
     background-color: #ddd;
     box-sizing: border-box;
     padding: 8px;
+    overflow: hidden;
+    text-align: left;
+    vertical-align: top;
+    display: block;
 }
 
 .selection-container {
