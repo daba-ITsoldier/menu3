@@ -3,10 +3,10 @@
 const menus = [
     {no:  1, name: "チャーハン", price: 900, img: "img/raimon.png"},
     {no:  2, name: "唐揚げ", price: 800, img: "img/raimon_resize.png"},
-    {no:  3, name: "餃子", price: 700, img: "img/raimon.png"},
-    {no:  4, name: "焼売", price: 10, img: "img/raimon.png"},
-    {no:  5, name: "棒棒鶏", price: 1000, img: "img/raimon.png"},
-    {no:  6, name: "チャーハンチャーハン チャーハン", price: 1900, img: "img/raimon.png"},
+    {no:  3, name: "餃子", price: 700, img: "img/raimon3.png"},
+    {no:  4, name: "焼売", price: 10, img: "img/raimon3.png"},
+    {no:  5, name: "棒棒鶏", price: 1000, img: "img/raimon3.png"},
+    {no:  6, name: "チャーハンチャーハン チャーハン", price: 1900, img: "img/raimon3.png"},
     {no:  7, name: "チャーハン　　　　　半チャーハン　　　　　全チャーハン　　　　　サイコチャーハン", price: 900, img: "img/raimon.png"},
     {no:  8, name: "寿限無寿限無五劫のすりきれ海砂利水魚の水行末雲来末風来末食う寝るところに住むところやぶらこうじのぶらこうじパイポパイポパイポのシューリンガンシューリンガンのグーリンダイグーリンダイのポンポコピーのポンポコナの長久命ちょうきゅうめいの長助", price: 60000, img: "img/raimon.png"},
     {no:  9, name: "チャーハン", price: 600, img: "img/raimon.png"},
@@ -24,6 +24,19 @@ let isAnimating = false;
 
 // カートインアニメーション用
 const cartInImg = document.querySelector(".cart-in-animation > img");
+
+// カートインアニメーション用の変数
+let rect = 0;
+let centerX = 0;
+let centerY = 0;
+let cartRect = 0;
+let endX = 0;
+let endY = 0;
+
+// カート送信前のポップアップ用
+const cartInSelection = document.querySelector(".cart-in-selection");
+const cartInSelectionOverlay = document.querySelector(".cart-in-selection-overlay");
+const temporaryItem = [];    // 一時的にメニューの情報を保存するところ
 
 // カートの位置補正用
 const mainCoodinate = document.querySelector(".main").getBoundingClientRect();
@@ -128,25 +141,21 @@ function createMenu(array) {
     // カートインアニメーション
     text.addEventListener("click", () => {
         // カートインアニメーション
-        const rect = text.getBoundingClientRect();
-        const centerX = Math.round(rect.left + window.pageXOffset) - 25;
-        const centerY = Math.round(rect.top + window.pageYOffset) + 75;
-        const cartRect = cartButton.getBoundingClientRect();
-        const endX = Math.round(cartRect.left + window.pageXOffset);
-        const endY = Math.round(cartRect.top + window.pageYOffset) + 16;
+        rect = text.getBoundingClientRect();
+        centerX = Math.round(rect.left + window.pageXOffset) - 25;
+        centerY = Math.round(rect.top + window.pageYOffset) + 75;
+        cartRect = cartButton.getBoundingClientRect();
+        endX = Math.round(cartRect.left + window.pageXOffset);
+        endY = Math.round(cartRect.top + window.pageYOffset) + 16;
 
-        cartInAnimation(cartIn, centerX, centerY, cartButton, endX, endY);
-
-        // カートに飛ばす情報
-        // menuStocks.push(array);
-        // console.log(menuStocks);
-
-        // カート内のトータル表示
-        addListItem(array);
-        cartPriceDisplay();
-        cartTotalDisplay();
-        inCartPriceDisplay();
-        inCartTotalDisplay();
+        cartInSelection.style.zIndex = 101;
+        cartInSelectionOverlay.style.zIndex = 100;
+        temporaryItem.push({...array});
+        // ここにポップアップのメニュー名と値段の表示も仕込む
+        const menuName = truncateText(temporaryItem[0].name);
+        displaySelectionName(menuName);
+        displaySelectionPrice(temporaryItem[0].price);
+        displaySelectionExplain(temporaryItem[0].name);
     });
     
 
@@ -180,6 +189,93 @@ function adjustFontSize(element, maxChars, minFontSize, maxFontSize) {
         // element.style.textOverflow = "clip"; // 省略せず表示
     }
 }
+
+
+// カートインセレクション   ****************************************************************
+// (カートに入れる前に個数選択できるようにする)
+// function cartInSelectionAction(cartIn, centerX, centerY, cartButton, endX, endY) {
+//     cartInAnimation(cartIn, centerX, centerY, cartButton, endX, endY);
+// }
+
+// カートに入れる前の個数選択ポップアップ
+const selectionSend = document.querySelector(".selection-send");        // ポップアップの送信
+const selectionCancel = document.querySelector(".selection-cancel");    // ポップアップの取り消し
+
+// ポップアップ内のメニュー名と値段表示     これらはポップアップ表示の時に仕込む
+const selectionText = document.querySelector(".selection-text");
+const selectionPrice = document.querySelector(".selection-price > span");
+const selectionExplain = document.querySelector(".selection-explain");
+
+// カートに入れる前の個数調整
+const selectionMinus = document.querySelector(".selection-minus");
+const selectionPlus = document.querySelector(".selection-plus");
+const selectionNum = document.querySelector(".selection-num");
+
+// ポップアップの送信ボタン
+let sendCount = 1;
+
+// ポップアップの最大個数
+let maxValues = 20;
+
+// クリックで個数調整
+selectionMinus.addEventListener("click", () => {
+    sendCount--;
+    if(sendCount <= 0) {
+        sendCount = 1;
+    }
+    displaySelectionNum();
+});
+
+selectionPlus.addEventListener("click", () => {
+    sendCount++;
+    if(sendCount > maxValues) {
+        sendCount = maxValues;
+    };
+    displaySelectionNum();
+});
+
+function displaySelectionNum() {
+    selectionNum.textContent = sendCount;
+}
+
+function displaySelectionName(arr) {
+    selectionText.textContent = arr;
+}
+
+function displaySelectionPrice(arr) {
+    selectionPrice.textContent = arr;
+}
+
+function displaySelectionExplain(arr) {
+    selectionExplain.textContent = arr;
+}
+
+selectionCancel.addEventListener("click", () => {
+    cartInSelection.style.zIndex = -10;
+    cartInSelectionOverlay.style.zIndex = -11;
+    temporaryItem.length = 0;
+    sendCount = 1;
+    displaySelectionNum();
+});
+
+selectionSend.addEventListener("click", () => {
+    cartInAnimation(cartIn, centerX, centerY, cartButton, endX, endY);
+    
+    for(let i = 1; i <= sendCount; i++) {
+        addListItem(temporaryItem[0]);
+    }
+    
+    cartPriceDisplay();
+    cartTotalDisplay();
+    inCartPriceDisplay();
+    inCartTotalDisplay();
+    
+    cartInSelection.style.zIndex = -10;
+    cartInSelectionOverlay.style.zIndex = -11;
+    temporaryItem.length = 0;     // 一時保存用の配列内を空っぽにする
+    sendCount = 1;
+    displaySelectionNum();
+});
 
 
 // カートインアニメーション   ******************************************************************
@@ -469,15 +565,24 @@ function renderList() {
 }
 
 function groupItems(element) {
+    console.log(element);
     const grouped = {};
 
     element.forEach(item => {
-        if(grouped[item.id]) {
-            grouped[item.id].count++;
+        if(grouped[item.no]) {
+            grouped[item.no].count++;
         } else {
-            grouped[item.id] = { ...item, count:1};
+            grouped[item.no] = { ...item, count:1};
         }
     });
+    // element.forEach(item => {
+    //     if(grouped[item.id]) {
+    //         grouped[item.id].count++;
+    //     } else {
+    //         grouped[item.id] = { ...item, count:1};
+    //     }
+    // });
+    console.log(grouped);
 
     return Object.values(grouped);
 }
@@ -497,7 +602,8 @@ function deleteItem(id) {
 
 function truncateText(text) {
     if (text.length > 10) {
-        return text.slice(0, 4) + "…" + text.slice(-4);
+        // return text.slice(0, 4) + "…" + text.slice(-4);
+        return text.slice(0, 9) + "…";
     }
     return text;
 }
@@ -522,6 +628,9 @@ hideBtn.addEventListener("click", () => {
 
 // 進捗
 // 残り
+
+//      個数選択ポップアップ
+
 // 　　　画像の中華風のやつ（雷紋）を小さくしてもう少しふちに寄せるようにする
 
 // 　　　下のボタンを後で変更しやすく整えておく
